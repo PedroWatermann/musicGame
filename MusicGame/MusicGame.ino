@@ -1,4 +1,9 @@
-#include <LinkedList.h>
+/*
+  Colocar os leds para piscar ao iniciar o jogo (ou quando for reiniciado (colocar um botão na protoboard para isso)).
+  A mainFunc() deve retornar o nome da nota tocada para que checkMusic() verifique se a nota corresponde corretamente. 
+  Caso sim, nada acontece, caso não, void() deve ser chamada para que resete a pontuação (colocar um som de erro).
+  No final, quando o usuário acertar, colocar os leds piscando, (a música do duolingo - tan daaaam), e a música toca de novo.
+*/
 
 // --------------- //
 #define C4 261.626
@@ -31,22 +36,61 @@ int btnU = 2;
 int btnR = 3;
 int btnD = 4;
 int btnL = 5;
+int btA1 = 6;
+int btA2 = 7;
 
-LinkedList<String> sequencia;
+bool reseted = false;
 
 void setup() {
   Serial.begin(9600);
   pinMode(led1, OUTPUT);
   pinMode(led2, OUTPUT);
   pinMode(buzz, OUTPUT);
-  pinMode(click, INPUT_PULLUP);
   pinMode(btnU, INPUT_PULLUP);
   pinMode(btnR, INPUT_PULLUP);
   pinMode(btnD, INPUT_PULLUP);
   pinMode(btnL, INPUT_PULLUP);
+  pinMode(btA1, INPUT_PULLUP);
+  pinMode(btA2, INPUT_PULLUP);
+  pinMode(click, INPUT_PULLUP);
+
+  if (!reseted) {
+    playMelody();
+  } else {
+    // Resetar pontuação na checkMusic() !!!!!!!!!!!!!!!
+  }
 }
 
 void loop() {
+  int estBtA1 = digitalRead(btA1);
+  int estBtA2 = digitalRead(btA2);
+  int estClic = digitalRead(click);
+
+  if (estBtA2 == LOW) 
+  {
+    playMelody();
+    reseted = true;
+  } 
+  else if (estBtA1 == LOW) 
+  {
+    playFastMelody();
+    reseted = true;
+  } 
+  else if (estClic == LOW) 
+  {
+    playLowMelody();
+    reseted = true;
+  }
+
+  mainFunc();
+  checkMusic();
+}
+
+void mainFunc() {
+  if (reseted) {
+    void();
+  }
+
   int xValue = analogRead(axisX);
   int yValue = analogRead(axisY);
   int clicVa = digitalRead(click);
@@ -125,3 +169,79 @@ void loop() {
 
   delay(100);  // Pequeno delay para evitar leituras muito rápidas no serial
 }
+
+void checkMusic() {
+  String seuqence[] = {"E5", "D5", "C5", "B4", "C5", "D5", "E5", "D5", "C5", "B4", "E5", "C5", "B4", "C5", "D5", "E5", "F5"};
+  Serial.println("ckeckMusic()");
+}
+
+void playMelody() {
+  int melody[] = {
+    E5, 600, D5, 300, C5, 300, B4, 300, 
+    C5, 600, D5, 300, E5, 300, D5, 300, 
+    C5, 300, B4, 300, E5, 600, C5, 300, 
+    B4, 300, C5, 300, D5, 300, E5, 600, 
+    F5, 1200
+  };
+  int melodySize = sizeof(melody) / sizeof(melody[0]);
+  for (int i = 0; i < melodySize; i += 2) {
+    int note = melody[i];
+    int duration = melody[i + 1];
+    tone(buzz, note, duration);  // Toca a nota no buzzer
+    delay(duration);  // Espera pelo tempo da nota antes de tocar a próxima
+    noTone(buzz);     // Para o som entre notas
+    delay(50);        // Pequena pausa entre as notas
+  }
+}
+
+void playFastMelody() {
+  int melody[] = {
+    E5, 300, D5, 150, C5, 150, B4, 150, 
+    C5, 300, D5, 150, E5, 150, D5, 150, 
+    C5, 150, B4, 150, E5, 300, C5, 150, 
+    B4, 150, C5, 150, D5, 150, E5, 300, 
+    F5, 600
+  };
+  int melodySize = sizeof(melody) / sizeof(melody[0]);
+  for (int i = 0; i < melodySize; i += 2) {
+    int note = melody[i];
+    int duration = melody[i + 1];
+    tone(buzz, note, duration);  // Toca a nota no buzzer
+    delay(duration);  // Espera pelo tempo da nota antes de tocar a próxima
+    noTone(buzz);     // Para o som entre notas
+    delay(50);        // Pequena pausa entre as notas
+  }
+}
+
+void playLowMelody() {
+  int melody[] = {
+    E5, 1200, D5, 600, C5, 600, B4, 600, 
+    C5, 1200, D5, 600, E5, 600, D5, 600, 
+    C5, 600, B4, 600, E5, 1200, C5, 600, 
+    B4, 600, C5, 600, D5, 600, E5, 1200, 
+    F5, 2400
+  };
+  int melodySize = sizeof(melody) / sizeof(melody[0]);
+  for (int i = 0; i < melodySize; i += 2) {
+    int note = melody[i];
+    int duration = melody[i + 1];
+    tone(buzz, note, duration);  // Toca a nota no buzzer
+    delay(duration);  // Espera pelo tempo da nota antes de tocar a próxima
+    noTone(buzz);     // Para o som entre notas
+    delay(50);        // Pequena pausa entre as notas
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
